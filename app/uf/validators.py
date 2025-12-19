@@ -1,13 +1,9 @@
 # app/uf/validators.py
-from datetime import datetime, date
+from datetime import date, datetime
 
-
-class InvalidDateError(ValueError):
-    pass
-
+from app.core.errors import InvalidDateError
 
 MIN_DATE = date(2013, 1, 1)
-
 
 def validate_date(date_str: str) -> date:
     try:
