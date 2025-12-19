@@ -7,6 +7,14 @@ import requests
 from app.core.errors import UFNotFoundError, UFSourceError
 from bs4 import BeautifulSoup
 
+"""Scraper for UF values from the Chilean SII website.
+
+Provides `fetch_uf_from_sii(date: str) -> UFResult` which scrapes the SII
+UF pages and returns the date and value as strings. Raises domain errors:
+`UFSourceError` for network / source issues and `UFNotFoundError` when a
+valid date has no value in the page.
+"""
+
 SII_UF_URL_TEMPLATE = "https://www.sii.cl/valores_y_fechas/uf/uf{year}.htm"
 
 @dataclass(frozen=True)

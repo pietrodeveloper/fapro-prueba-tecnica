@@ -5,7 +5,11 @@ from app.uf.service import get_uf_value
 
 router = APIRouter(prefix="/uf", tags=["uf"])
 
+"""UF API router.
 
+Defines the `/uf/{date}` endpoint that returns the UF value for a given
+date (YYYY-MM-DD). Domain errors are translated to proper HTTP responses.
+"""
 @router.get("/{date}")
 def read_uf(date: str):
     """
