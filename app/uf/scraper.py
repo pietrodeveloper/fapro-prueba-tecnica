@@ -52,27 +52,46 @@ def _parse_uf_value(html: str, month: int, day: int) -> Optional[str]:
     # In SII UF page, months are typically sections like <div id="mes_Enero"> ... </div>
     month_name_es = _month_name_es(month)
     month_div_id = f"mes_{month_name_es}"
+    
+    print(f"[DEBUG] Looking for month div: {month_div_id}")
 
     month_div = soup.find("div", {"id": month_div_id})
     if not month_div:
+        print(f"[DEBUG] Month div NOT found for {month_div_id}")
+        # Let's see what divs ARE available
+        all_divs = soup.find_all("div", id=True)
+        print(f"[DEBUG] Available divs with id: {[d.get('id') for d in all_divs[:10]]}")
         return None
 
+    print("[DEBUG] Month div found!")
     table = month_div.find("table")
     if not table:
+        print("[DEBUG] Table NOT found in month div")
         return None
 
+    print("[DEBUG] Table found!")
     # Rows contain day in <th> and value in next <td>
     # We look for a <th> exactly matching the day number
     day_str = str(day)
-    th = table.find("th", string=day_str)
+    print(f"[DEBUG] Looking for day: '{day_str}'")
+    
+    # Let's see what th elements exist
+    all_ths = table.find_all("th")
+    print(f"[DEBUG] First 10 th elements: {[th.get_text(strip=True) for th in all_ths[:10]]}")
+    
+    th = table.find(lambda tag: tag.name == "th" and tag.string == day_str)
     if not th:
+        print(f"[DEBUG] TH NOT found for day '{day_str}'")
         return None
 
+    print(f"[DEBUG] TH found for day '{day_str}'!")
     td = th.find_next("td")
     if not td:
+        print("[DEBUG] TD NOT found after th")
         return None
 
     value = td.get_text(strip=True)
+    print(f"[DEBUG] Value found: '{value}'")
     return value or None
 
 def _split_date(date: str) -> tuple[int, int, int]:
@@ -81,13 +100,13 @@ def _split_date(date: str) -> tuple[int, int, int]:
 
 def _month_name_es(month: int) -> str:
     """
-    Returns Spanish month name with first letter capitalized, matching SII HTML ids.
+    Returns Spanish month name in lowercase, matching SII HTML ids.
     """
     # We avoid locale dependency (locale.setlocale) for portability.
     months = [
         "",  # 0 placeholder
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
     ]
     if month < 1 or month > 12:
         raise ValueError("Invalid month")
